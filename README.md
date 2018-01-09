@@ -53,7 +53,7 @@ And effect that you should achieve:
 ## What we want to receive? How we want to receive it?
 
 If our layout is ready we can try to handle some data from REST API. For that we will use [Hipolabs API](http://universities.hipolabs.com/).
-We want to get informations about universities where there name contains search phrase from our `UISearchController`.
+We want to get informations about universities which name contain search phrase from our `UISearchController`.
 
 ### Example
 Here you have example of request and response for finding universities with `middle` as name parameter.
