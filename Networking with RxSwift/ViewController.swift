@@ -4,12 +4,10 @@ import RxCocoa
 import SafariServices
 
 class ViewController: UIViewController {
-
-    private let disposeBag = DisposeBag()
     private let tableView = UITableView()
     private let cellIdentifier = "cellIdentifier"
-    private var items: Variable<[UniversityModel]> = Variable([])
     private let apiClient = APIClient()
+    private let disposeBag = DisposeBag()
 
     private let searchController: UISearchController = {
         let searchController = UISearchController(searchResultsController: nil)
@@ -30,7 +28,6 @@ class ViewController: UIViewController {
         navigationItem.title = "University finder"
         navigationItem.hidesSearchBarWhenScrolling = false
         navigationController?.navigationBar.prefersLargeTitles = true
-
     }
 
     private func configureLayout() {
@@ -46,7 +43,12 @@ class ViewController: UIViewController {
     }
 
     private func configureReactiveBinding() {
-        items.asObservable()
+        searchController.searchBar.rx.text.asObservable()
+            .map { ($0 ?? "").lowercased() }
+            .map { UniversityRequest(name: $0) }
+            .flatMap{ request -> Observable<[UniversityModel]> in
+                return self.apiClient.send(apiRequest: request)
+            }
             .bind(to: tableView.rx.items(cellIdentifier: cellIdentifier)) { index, model, cell in
                 cell.textLabel?.text = model.name
                 cell.detailTextLabel?.text = model.description
@@ -54,24 +56,10 @@ class ViewController: UIViewController {
             }
             .disposed(by: disposeBag)
 
-        searchController.searchBar.rx.text.asObservable()
-            .throttle(1.0, latest: true, scheduler: MainScheduler.instance)
-            .map { text -> String in
-                return (text ?? "").lowercased()
-            }
-            .flatMap{ searchText -> Observable<[UniversityModel]> in
-                return self.apiClient.send(apiRequest: UniversityRequest(name: searchText))
-            }
-            .bind(to: self.items)
-            .disposed(by: disposeBag)
-
         tableView.rx.modelSelected(UniversityModel.self)
-            .map { model -> URL in
-                return URL(string: model.webPages?.first ?? "")!
-            }
-            .observeOn(MainScheduler.instance)
-            .subscribe(onNext: { [weak self] url in
-                let safariViewController = SFSafariViewController(url: url)
+            .map { URL(string: $0.webPages?.first ?? "")! }
+            .map { SFSafariViewController(url: $0) }
+            .subscribe(onNext: { [weak self] safariViewController in
                 self?.present(safariViewController, animated: true)
             })
             .disposed(by: disposeBag)
