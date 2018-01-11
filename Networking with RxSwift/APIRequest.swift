@@ -1,8 +1,7 @@
 import Foundation
 
 public enum RequestType: String {
-    case GET = "GET"
-    case POST = "POST"
+    case GET, POST
 }
 
 protocol APIRequest {
