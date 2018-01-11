@@ -89,7 +89,7 @@ For making this more universal we need to create `APIRequest` protocol, so diffe
 
 `APIRequest` class consists of two parts:
 
-* Protocol itself where are defined necessary properties:
+Protocol itself where are defined necessary properties:
 ```
 protocol APIRequest {
     var method: RequestType { get }
@@ -97,10 +97,10 @@ protocol APIRequest {
     var parameters: [String : String] { get }
 }
 ```
-* Protocol extension that will create `URLRequest` from instance of `APIRequest`:
+Protocol extension that will create `URLRequest` from instance of `APIRequest`:
 ```
 extension APIRequest {
-    func request(baseURL: URL) -> URLRequest {
+    func request(with baseURL: URL) -> URLRequest {
         guard var components = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false) else {
             fatalError("Unable to create URL components")
         }
@@ -123,8 +123,7 @@ extension APIRequest {
 I also created a small enum inside `APIRequest` class to improve declaring httpMethod:
 ```
 public enum RequestType: String {
-    case get = "GET"
-    case post = "POST"
+    case GET, POST
 }
 ```
 
@@ -132,9 +131,9 @@ When `APIRequest` protocol is ready we can make real request specify for searchi
 
 ```
 class UniversityRequest: APIRequest {
-    var method = RequestType.get
+    var method = RequestType.GET
     var path = "search"
-    var parameters: [String : String] = [:]
+    var parameters = [:]
 
     init(name: String) {
         parameters["name"] = name
@@ -157,7 +156,7 @@ class APIClient {
 
     func send<T: Codable>(apiRequest: APIRequest) -> Observable<T> {
         return Observable<T>.create { [unowned self] observer in
-            let request = apiRequest.request(baseURL: self.baseURL)
+            let request = apiRequest.request(with: self.baseURL)
             let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
                 do {
                     let model: T = try JSONDecoder().decode(T.self, from: data ?? Data())
@@ -188,7 +187,7 @@ Result that we expect:
 searchController.searchBar.rx.text.asObservable()
   .map { ($0 ?? "").lowercased() }
   .map { UniversityRequest(name: $0) }
-  .flatMap{ request -> Observable<[UniversityModel]> in
+  .flatMap { request -> Observable<[UniversityModel]> in
     return self.apiClient.send(apiRequest: request)
   }
   .bind(to: tableView.rx.items(cellIdentifier: cellIdentifier)) { index, model, cell in
@@ -198,7 +197,7 @@ searchController.searchBar.rx.text.asObservable()
 ```
 ![](https://i.imgflip.com/22dq0i.jpg)
 
-Please remember to import `RxSwift` and `RxCocoa` and create two global variable:
+Please remember to import `RxSwift` and `RxCocoa` and create two variable:
 ```
 private let apiClient = APIClient()
 private let disposeBag = DisposeBag()
