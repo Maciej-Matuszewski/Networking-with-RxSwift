@@ -1,8 +1,8 @@
 import Foundation
 
 public enum RequestType: String {
-    case get = "GET"
-    case post = "POST"
+    case GET = "GET"
+    case POST = "POST"
 }
 
 protocol APIRequest {
@@ -12,7 +12,7 @@ protocol APIRequest {
 }
 
 extension APIRequest {
-    func request(baseURL: URL) -> URLRequest {
+    func request(with baseURL: URL) -> URLRequest {
         guard var components = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false) else {
             fatalError("Unable to create URL components")
         }

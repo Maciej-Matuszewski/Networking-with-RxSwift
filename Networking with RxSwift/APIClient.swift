@@ -6,7 +6,7 @@ class APIClient {
 
     func send<T: Codable>(apiRequest: APIRequest) -> Observable<T> {
         return Observable<T>.create { [unowned self] observer in
-            let request = apiRequest.request(baseURL: self.baseURL)
+            let request = apiRequest.request(with: self.baseURL)
             let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
                 do {
                     let model: T = try JSONDecoder().decode(T.self, from: data ?? Data())

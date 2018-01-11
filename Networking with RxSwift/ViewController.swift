@@ -46,7 +46,7 @@ class ViewController: UIViewController {
         searchController.searchBar.rx.text.asObservable()
             .map { ($0 ?? "").lowercased() }
             .map { UniversityRequest(name: $0) }
-            .flatMap{ request -> Observable<[UniversityModel]> in
+            .flatMap { request -> Observable<[UniversityModel]> in
                 return self.apiClient.send(apiRequest: request)
             }
             .bind(to: tableView.rx.items(cellIdentifier: cellIdentifier)) { index, model, cell in
