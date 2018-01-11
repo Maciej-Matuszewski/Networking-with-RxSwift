@@ -5,16 +5,16 @@
 ## Prepare project
 ![](https://media.giphy.com/media/VGG8UY1nEl66Y/giphy.gif)
 
-First step in our adventure will be preparing the project, after creating the project in Xcode we need to add external libraries:
+First step in our journey will be preparing the project, after creating it in Xcode, we need to add two external libraries:
 
 * [RxSwift](https://github.com/ReactiveX/RxSwift)
 * [RxCocoa](https://github.com/ReactiveX/RxSwift)
 
-I used for that [Cocoapods](https://cocoapods.org), but feel free to import libraries via [Carthage](https://github.com/Carthage/Carthage) or manually. Instructions of installation you can find on [RxSwift repository page](https://github.com/ReactiveX/RxSwift#installation)
+I used for that [Cocoapods](https://cocoapods.org), but feel free to import libraries via [Carthage](https://github.com/Carthage/Carthage) or manually. For Instructions head to [RxSwift repository page](https://github.com/ReactiveX/RxSwift#installation)
 
 ### Simple Layout
 
-When our project is ready for coding we need to create place where we will be able to present received data. For this I created simple `UITableView` and `UISearchController` in main `ViewController` which should be embed in `UINavigationController`
+When our project is ready for coding we need to create place where received data will be presented. For this I created simple `UITableView` and `UISearchController` in main `ViewController` which should be embed in `UINavigationController`
 
 Here you have code that do the work:
 ```
@@ -47,7 +47,8 @@ private func configureLayout() {
     tableView.contentInset.bottom = view.safeAreaInsets.bottom
 }
 ```
-And effect that you should achieve:
+And here is the result:
+
 ![](https://media.giphy.com/media/xULW8KZqpGa3HAAG7C/giphy.gif)
 
 ## What we want to receive? How we want to receive it?
@@ -66,7 +67,7 @@ Now when we know how API works we can create request and model objects.
 
 ### Model
 
-For working on data that came from server we can use JSON dictionary like `[String: Any]`, but I prefer to create data model which is much clearer and easer to use. For purpose of receiving universities objects I created struct `UniversityModel`, which conform to `Codable` protocol and because of that we don't need to be bother by parsing data, let's leave that to swift engine.
+For working on data that came from server we can use JSON dictionary like `[String: Any]`, but I prefer to create data model which is much clearer and easier to use. For purpose of receiving universities objects I created struct `UniversityModel`, which conform to `Codable` protocol and because of that we don't need to be bothered by parsing data, let's leave that to swift engine.
 
 ```
 struct UniversityModel: Codable {
@@ -84,11 +85,11 @@ struct UniversityModel: Codable {
 
 ### Requests
 
-For making this more universal we need to create `APIRequest` protocol, so we could create different requests that will be handle by the same `APIClient`.
+For making this more universal we need to create `APIRequest` protocol, so different requests could be handle by the same `APIClient`.
 
 `APIRequest` class consists of two parts:
 
-* Protocol itself where are defined necessary property:
+* Protocol itself where are defined necessary properties:
 ```
 protocol APIRequest {
     var method: RequestType { get }
@@ -149,7 +150,7 @@ class UniversityRequest: APIRequest {
 
 Now it is time for the most important piece of this puzzle, part that will change our request for data from server. Now it is time for `APIClient`!
 
-`APIClient` is a class where by using RxSwift `URLSession` task (created from previously prepared request) is converted to `Observable` that deliver already parsed model of data if only model is `Codable`.
+`APIClient` is a class where by using RxSwift `URLSession` task (created from previously prepared request) is converted to `Observable` that delivers already parsed model of data if only model is `Codable`.
 ```
 class APIClient {
     private let baseURL = URL(string: "http://universities.hipolabs.com/")!
